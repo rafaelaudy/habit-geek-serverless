@@ -1,33 +1,55 @@
 org: rafaelaudy
 app: habit-geek
-# NOTE: update this with your service name
-service: serverless-graphql-nodejs-starter
+service: habit-geek-serverless
 
-# Use the serverless-webpack plugin to transpile ES6
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-pseudo-parameters
 
-# serverless-webpack configuration
-# Enable auto-packing of external modules
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
   serverless-offline:
     port: 4000
+  DB_NAME: habit-geek
+  USERNAME: geek
+  PASSWORD: ${file(./secrets.json):DBPassword}
+  AURORA:
+    HOST:
+      Fn::GetAtt: [AuroraRDSCluster, Endpoint.Address]
+    PORT:
+      Fn::GetAtt: [AuroraRDSCluster, Endpoint.Port]
+    VPC_CIDR: 10
 
 provider:
   name: aws
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
-  # To load environment variables externally
-  # rename env.example to env.yml and uncomment
-  # the following line. Also, make sure to not
-  # commit your env.yml.
-  #
-  #environment: ${file(env.yml):${self:provider.stage}}
+  environment:
+    AURORA_HOST: ${self:custom.AURORA.HOST}
+    AURORA_PORT: ${self:custom.AURORA.PORT}
+    DB_NAME: ${self:custom.DB_NAME}
+    USERNAME: ${self:custom.USERNAME}
+    PASSWORD: ${self:custom.PASSWORD}
+
+resources:
+  Resources:
+    ServerlessInternetGateway: ${file(./serverless/ServerlessInternetGateway.yml)}
+    ServerlessVPC: ${file(./serverless/ServerlessVPC.yml)}
+    ServerlessVPCGA: ${file(./serverless/ServerlessVPCGA.yml)}
+    ServerlessSubnetA: ${file(./serverless/ServerlessSubnetA.yml)}
+    ServerlessSubnetB: ${file(./serverless/ServerlessSubnetB.yml)}
+    ServerlessSubnetC: ${file(./serverless/ServerlessSubnetC.yml)}
+    ServerlessSubnetGroup: ${file(./serverless/ServerlessSubnetGroup.yml)}
+    ServerlessSecurityGroup: ${file(./serverless/ServerlessSecurityGroup.yml)}
+
+    AuroraRDSClusterParameter: ${file(./serverless/AuroraRDSClusterParameter.yml)}
+    AuroraRDSInstanceParameter: ${file(./serverless/AuroraRDSInstanceParameter.yml)}
+    AuroraRDSCluster: ${file(./serverless/AuroraRDSCluster.yml)}
+    AuroraRDSInstance: ${file(./serverless/AuroraRDSInstance.yml)}
 
 functions:
   graphql:
