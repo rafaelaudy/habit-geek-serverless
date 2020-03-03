@@ -1,9 +1,6 @@
-Type: AWS::EC2::VPC
+Type: AWS::EC2::VPCGatewayAttachment
 Properties:
-  CidrBlock: ${self:custom.AURORA.VPC_CIDR}.0.0.0/16
-  EnableDnsSupport: true
-  EnableDnsHostnames: true
-  InstanceTenancy: default
-  Tags:
-    - Key: "Name"
-      Value: "ServerlessVPC"
+  VpcId:
+    Ref: ServerlessVPC
+  InternetGatewayId:
+    Ref: ServerlessInternetGateway

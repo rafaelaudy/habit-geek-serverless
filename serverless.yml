@@ -13,7 +13,7 @@ custom:
     includeModules: true
   serverless-offline:
     port: 4000
-  DB_NAME: habit-geek
+  DB_NAME: habitgeek
   USERNAME: geek
   PASSWORD: ${file(./secrets.json):DBPassword}
   AURORA:
